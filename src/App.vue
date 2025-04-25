@@ -14,7 +14,17 @@ const correctLetters = computed(() =>
     word.value.toLowerCase().includes(letter.toLowerCase())
   )
 )
+const wrongLetters = computed(() => letters.value.filter(letter =>
+  !word.value.toLowerCase().includes(letter.toLowerCase())
+))
+const notification = ref<InstanceType<typeof GameNotification> | null>(null)
+notification.value?.open()
 window.addEventListener('keydown', ({ key }) => {
+  if (letters.value.includes(key.toLocaleLowerCase())) {
+    notification.value?.open()
+    setTimeout(() => { notification.value?.close() }, 2000)
+    return
+  }
   if (/[а-яА-ЯёЁ]/.test(key)) {
     letters.value.push(key.toLowerCase())
   }
@@ -23,15 +33,15 @@ window.addEventListener('keydown', ({ key }) => {
 <template lang="">
   <GameHeader />
   {{word}}
-  {{letters}}
+  {{wrongLetters}}
   {{correctLetters}}
   <div class="game-container">
     <GameFigure />
-    <GameWrongLetters />
+    <GameWrongLetters :wrong-letters="wrongLetters"/>
     <GameWord :word="word" :correct-letters="correctLetters"/>
     <GamePopup v-if="false" />
   </div>
-  <GameNotification />
+  <GameNotification ref="notification"/>
 </template>
 
 
